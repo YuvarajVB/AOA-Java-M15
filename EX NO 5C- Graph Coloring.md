@@ -1,36 +1,37 @@
 
-# EX 5D Flower Planting.
+# EX 5C Graph coloring
 ## DATE: 20/05/2026
 ## AIM:
 To write a Java program to for given constraints.  
-You are given n gardens, labelled from 1 to n.
 
-You also have a list called paths, where each element paths[i] = [xi, yi] represents a bidirectional road connectingthe  garden xi and garden yi.
+Problem Description:  
+In a hilly region, several radio towers are installed to provide communication services. However, due to signal interference, two adjacent towers (i.e., in communication range of each other) must not use the same frequency channel.
 
-You want to plant one flower in each garden, and there are exactly 4 types of flowers labelled as 1, 2, 3, and 4.
+You are given N radio towers and their communication ranges represented as an undirected graph. Your task is to assign channels (colors) to these towers using at most M channels such that no two adjacent towers use the same channel.
 
-Your goal is to plant flowers such that:
+Write a program to determine if such an assignment is possible or not.
 
-No two connected gardens (i.e., connected via a path) have the same flower type.
+Input Format:  
+First line contains two integers: N (number of towers), and M (number of available frequency channels).
 
-Return any valid flower assignment as an array where:
+Next line contains an integer E — number of edges representing the communication range.
 
-answer[i] is the flower type planted in the (i+1) ᵗʰ garden
+Next E lines contain two integers u and v — representing that tower u and tower v are within range (0-based index).
 
-It is guaranteed that:
+Output Format:  
+Print "YES" if it's possible to assign frequencies to towers such that no two adjacent towers have the same frequency.
 
-No garden is connected to more than 3 other gardens
+Otherwise, print "NO".
 
-A valid flower assignment always exists
+<img width="182" height="440" alt="image" src="https://github.com/user-attachments/assets/b32078a2-c79d-4a25-88c4-e51144b5456f" />
 
-<img width="177" height="292" alt="image" src="https://github.com/user-attachments/assets/36aa40cb-1cdd-4746-b1a6-fc51ce6e96aa" />
 
 ## Algorithm
-1. Start the program and read the number of gardens n and the paths connecting the gardens.
-2. Create an adjacency list to represent the connections between gardens.
-3. Initialize an array to store flower types for each garden.
-4. For each garden, check the flower types already assigned to its neighboring gardens and choose a flower type from 1 to 4 that is not used by any neighbor.
-5. Assign the valid flower type to the garden, print the flower arrangement for all gardens, and stop the program.  
+1. Start the program and read the number of towers N, number of channels M, and the connections between towers.
+2. Represent the communication ranges using an adjacency list and initialize a color array with 0 to indicate unassigned channels.
+3. Use a backtracking function to assign a valid channel to each tower one by one.
+4. For every tower, check all available channels and assign a channel only if none of its adjacent towers has the same channel. If no valid channel is possible, backtrack and try another assignment.
+5. If all towers are successfully assigned channels, print "YES"; otherwise, print "NO" and stop the program.  
 
 ## Program:
 ```
@@ -40,58 +41,55 @@ Register Number: 212223230252
 ```java
 import java.util.*;
 
-public class GardenFlowerPlanner {
+public class RadioTowerChannelAssignment {
 
-    public static int[] assignFlowers(int n, int[][] paths) 
+    public static boolean isColorable(List<List<Integer>> graph, int[] color, int node, int m, int n) 
     {
-        List<List<Integer>> graph = new ArrayList<>();
-        for (int i = 0; i < n; i++) graph.add(new ArrayList<>());
-        for (int[] path : paths) 
-        {
-            int u = path[0] - 1; 
-            int v = path[1] - 1;
-            graph.get(u).add(v);
-            graph.get(v).add(u);
-        }
-
-        int[] flowers = new int[n];
-
-        for (int i = 0; i < n; i++) 
-        {
-            boolean[] used = new boolean[5];
-            for (int neighbor : graph.get(i)) 
+        if (node == n) return true;
+        for (int c = 1; c <= m; c++) {
+            boolean safe = true;
+            for (int neighbor : graph.get(node)) 
             {
-                if (flowers[neighbor] != 0) 
+                if (color[neighbor] == c) 
                 {
-                    used[flowers[neighbor]] = true;
-                }
-            }
-            for (int type = 1; type <= 4; type++) 
-            {
-                if (!used[type]) 
-                {
-                    flowers[i] = type;
+                    safe = false;
                     break;
                 }
             }
+            if (safe) 
+            {
+                color[node] = c;
+                if (isColorable(graph, color, node + 1, m, n)) return true;
+                color[node] = 0; 
+            }
         }
-        return flowers;
+        return false;
     }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt(); // number of gardens
-        int m = sc.nextInt(); // number of paths
-        int[][] paths = new int[m][2];
-        for (int i = 0; i < m; i++) {
-            paths[i][0] = sc.nextInt();
-            paths[i][1] = sc.nextInt();
+        int n = sc.nextInt(); // number of towers
+        int m = sc.nextInt(); // number of channels
+        int e = sc.nextInt(); // number of connections
+
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < n; i++)
+            graph.add(new ArrayList<>());
+
+        for (int i = 0; i < e; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            graph.get(u).add(v);
+            graph.get(v).add(u);
         }
 
-        int[] result = assignFlowers(n, paths);
-        for (int flower : result) {
-            System.out.print(flower + " ");
-        }
+        int[] color = new int[n];
+
+        if (isColorable(graph, color, 0, m, n))
+            System.out.println("YES");
+        else
+            System.out.println("NO");
+
         sc.close();
     }
 }
@@ -100,7 +98,7 @@ public class GardenFlowerPlanner {
 
 ## Output:
 
-<img width="403" height="461" alt="output4" src="https://github.com/user-attachments/assets/4eb6727e-2ef4-4618-a922-d049fb7fa54f" />
+<img width="353" height="492" alt="output3" src="https://github.com/user-attachments/assets/aac1e0cc-fe8f-49da-9096-dccfdf123fd8" />
 
 
 ## Result:
